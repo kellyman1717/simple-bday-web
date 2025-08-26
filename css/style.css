@@ -1,0 +1,422 @@
+/* css/style.css */
+
+/* Mencegah scroll di level tertinggi (html dan body) */
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; 
+    overscroll-behavior: none; /* cegah rubber-band scroll di mobile */
+}
+
+/* Pengaturan dasar dan font */
+body {
+    font-family: sans-serif;
+    background-color: #2c2c2c;
+    color: white;
+}
+
+/* Konten utama (hanya tampil di mobile) */
+#mobile-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: fixed; /* Mengunci posisi container ke viewport */
+    top: 0;
+    left: 0;
+    perspective: 1000px; /* Menambahkan perspektif untuk efek 3D */
+}
+
+/* Confetti overlay */
+#confetti-canvas{
+  position: fixed;        /* menutupi seluruh viewport */
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;         /* pakai dvh agar stabil di mobile */
+  pointer-events: none;   /* tidak menghalangi klik */
+  z-index: 40;            /* di atas section (z=10), di bawah tombol (z=50) */
+}
+
+/* Styling dasar untuk semua section */
+.section {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: transform 1s ease, opacity 1s ease;
+    transform: scale(1.2);
+    pointer-events: none;
+    backface-visibility: hidden; /* Mencegah flicker saat animasi */
+}
+
+.section.active {
+    opacity: 1;
+    transform: scale(1);
+    z-index: 10;
+    pointer-events: auto;
+}
+
+.section.background {
+    opacity: 0;
+    transform: scale(0.8);
+    z-index: 1;
+    pointer-events: none;
+}
+
+
+/* Kontainer untuk semua bagian kue */
+.cake-container {
+    position: relative;
+    width: 300px;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease-out; /* Animasi saat kue menghilang */
+}
+
+/* Styling untuk setiap bagian kue */
+.cake-part {
+    position: absolute;
+    opacity: 0; /* Awalnya semua transparan */
+}
+
+/* Posisi spesifik untuk setiap bagian kue */
+#piring {
+    width: 300px;
+    bottom: 40px;
+    z-index: 1;
+    animation: fadeInDown 1s ease-out 0.5s forwards;
+}
+
+#kue-bawah {
+    width: 280px;
+    bottom: 45px;
+    z-index: 2;
+    animation: fadeInDown 1s ease-out 1.5s forwards;
+}
+
+#kue-atas {
+    width: 278px;
+    bottom: 47px;
+    z-index: 3;
+    animation: fadeInDown 1s ease-out 2.5s forwards;
+}
+
+/* Styling dan Posisi untuk 3 Lilin */
+.lilin {
+    z-index: 4;
+    cursor: pointer;
+    animation: fadeInDown 1s ease-out forwards;
+}
+
+#lilin-kiri {
+    width: 70px;
+    bottom: 238px;
+    left: calc(50% - 20px - 35px);
+    animation-delay: 3.5s;
+}
+
+#lilin-kanan {
+    width: 70px;
+    bottom: 238px;
+    left: calc(50% + 20px - 35px);
+    animation-delay: 3.5s;
+}
+
+#lilin-tengah {
+    width: 100px;
+    bottom: 228px;
+    left: calc(50% - 50px);
+    animation-delay: 4.0s;
+}
+
+/* Styling Api Lilin */
+.api {
+    position: absolute;
+    width: 16px;
+    height: 40px;
+    background-color: #ffda77;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: 0 0 15px #ffc400, 0 0 25px #ffac00;
+    z-index: 5;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#api-kiri {
+    bottom: 290px;
+    left: calc(50% - 20px - 8px); 
+}
+#api-kanan {
+    bottom: 290px;
+    left: calc(50% + 20px - 8px);
+}
+#api-tengah {
+    bottom: 300px;
+    left: calc(50% - 8px);
+}
+
+.api.lit {
+    opacity: 1;
+    animation: flicker 1.5s ease-in-out infinite;
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* Teks Instruksi */
+#instruction {
+    font-size: 1.2rem;
+    color: #a0a0a0;
+    text-align: center;
+    opacity: 0;
+    animation: fadeIn 1s ease-in 4.5s forwards;
+    transition: opacity 0.5s ease-out;
+}
+
+/* Section 2: Kartu Ucapan */
+.wish-card {
+    background-color: #f1f1f1;
+    color: #333;
+    padding: 30px;
+    border-radius: 15px;
+    width: 65%;
+    height: 30%;
+    max-width: 300px;
+    text-align: center;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    opacity: 0;
+    animation: fadeIn 1s ease-out 1s forwards; /* Muncul setelah section aktif */
+}
+
+/* Section 3: Galeri Foto */
+.photo-gallery {
+    position: relative;
+    width: min(92vw, 360px);
+    height: calc(min(92vw, 360px) * 1.55);
+    margin: 0 auto;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* === Card background di belakang foto === */
+.photo-card-bg {
+    position: absolute;
+    width: 70%;
+    height: 50%;
+    background-color: #f9f9f9;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+    z-index: 0;             /* pastikan di belakang semua foto */
+}
+
+.photo {
+    position: absolute;
+    width: clamp(88px, 30vw, 130px);      /* inti fix: batasi ukuran */
+    height: auto;
+    background-color: #fff;
+    padding: 5px;
+    border-radius: 4px;
+    border: 0.5px solid #000;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: scale(1.2);
+    transform-origin: center;
+    transition: all 0.5s ease-out;
+    z-index: 1;
+}
+
+.photo.visible {
+    opacity: 1;
+    transform: scale(1) rotate(var(--rot, 0deg));
+}
+
+/* Posisi dan rotasi untuk setiap foto */
+#photo-1 { top: 8%;   left: 22%;  --rot: -10deg; }
+#photo-2 { top: 6%;   right: 16%; --rot:  12deg; }
+#photo-3 { top: 30%;  left: 6%;   --rot:   8deg; }
+#photo-4 { top: 36%;  right: 2%;  --rot:  18deg; }
+#photo-8 { top: 30%;  right: 22%; --rot:  -6deg; }
+#photo-5 { top: 56%;  left: 10%;  --rot: -12deg; }
+#photo-6 { top: 70%;  left: 38%;  --rot:  -6deg; }
+#photo-7 { top: 64%;  right: 10%; --rot:  10deg; }
+
+#photo-lightbox{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.78);
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+  z-index: 60;
+}
+
+#photo-lightbox.visible{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#lightbox-stage{
+  position: relative;
+  max-width: 80vw;
+  max-height: 80vh;
+  transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .45s ease;
+  transform: none;         /* final state */
+  opacity: 1;              /* final state */
+  will-change: transform, opacity;
+}
+
+/* Gambar di lightbox: muat 80% layar */
+#lightbox-img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+}
+
+#photo-lightbox.visible #lightbox-img{
+  transform: scale(1);
+}
+
+/* Tombol X di pojok kanan atas */
+#lightbox-close{
+  position: fixed;
+  top: 10px; right: 10px;
+  width: 40px; height: 40px;
+  border: none; border-radius: 999px;
+  background: rgba(255,255,255,.95);
+  color: #111; font-size: 28px; line-height: 40px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+  z-index: 61;
+  cursor: pointer;
+}
+
+#photo-lightbox.anim-start #lightbox-stage{
+  opacity: 0;              /* ikut fade-in */
+}
+
+/* (Opsional) Hilangkan highlight klik di iOS */
+#lightbox-close { -webkit-tap-highlight-color: transparent; }
+
+/* ====== Section 4: layout card ucapan ====== */
+.closing-wrapper{
+  position: relative;
+  width: min(92vw, 360px);
+  height: calc(min(92vw, 360px) * 1.55);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.closing-card{
+  width: 78%;
+  max-width: 300px;
+  background: #eeeeee;
+  color: #222;
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(0,0,0,.45);
+  padding: 20px;
+  opacity: 0;                     /* awalnya tersembunyi */
+  transform: translateY(14px);    /* untuk efek fade-in naik */
+}
+
+/* Saat section-4 aktif, kartu muncul dengan animasi */
+#section-4.section.active .closing-card{
+  animation: closingFadeIn .7s ease-out .2s forwards;
+}
+
+/* Tombol Next */
+#nextButton {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.8);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    z-index: 100;
+}
+
+#nextButton.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+/* Definisi animasi */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes flicker {
+    0%, 100% { transform: scaleY(1) rotate(-1deg); }
+    50% { transform: scaleY(0.95) rotate(1deg); }
+}
+
+@keyframes closingFadeIn{
+  from { opacity: 0; transform: translateY(14px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0)     scale(1); }
+}
+
+.gone { display: none !important; }
+
+#desktop-blocker {
+    display: none;
+}
+
+/* Blocker untuk tampilan Desktop */
+@media (min-width: 768px) {
+    #mobile-content { display: none; }
+    #desktop-blocker {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100dvh; /* gunakan dynamic viewport height agar tidak ada geser */
+        background-color: #1a1a1a;
+    }
+    .message { text-align: center; padding: 20px; max-width: 400px; }
+    .message h1 { font-size: 3rem; color: #ff6b6b; }
+    .message p { font-size: 1.2rem; color: #f1f1f1; }
+}
+
+@media (max-width: 340px) {
+  .photo-gallery {
+    width: 90vw;
+    height: calc(90vw * 1.5);
+  }
+  .photo { width: clamp(80px, 28vw, 116px); }
+}
+
+#mobile-content, .section { overflow: hidden; }

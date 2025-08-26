@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selamat Ulang Tahun!</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Konten utama yang hanya tampil di mobile -->
+    <main id="mobile-content">
+        <canvas id="confetti-canvas"></canvas>
+        <!-- Section 1: Kue Ulang Tahun -->
+        <section id="section-1" class="section active">
+            <div class="cake-container">
+                <img src="assets/images/piring.png" alt="Piring Kue" id="piring" class="cake-part">
+                <img src="assets/images/kue bawah.png" alt="Kue Bawah" id="kue-bawah" class="cake-part">
+                <img src="assets/images/kue atas.png" alt="Kue Atas" id="kue-atas" class="cake-part">
+                <img src="assets/images/candle.png" alt="Lilin Kiri" id="lilin-kiri" class="cake-part lilin">
+                <img src="assets/images/candle.png" alt="Lilin Kanan" id="lilin-kanan" class="cake-part lilin">
+                <img src="assets/images/candle.png" alt="Lilin Tengah" id="lilin-tengah" class="cake-part lilin">
+                <div id="api-kiri" class="api"></div>
+                <div id="api-kanan" class="api"></div>
+                <div id="api-tengah" class="api"></div>
+            </div>
+            <p id="instruction">Tap lilin untuk menyalakan</p>
+        </section>
+
+        <!-- Section 2: Kartu Ucapan -->
+        <section id="section-2" class="section">
+            <div class="wish-card">
+                <p>Semoga panjang umur, sehat selalu, dan semua impianmu tercapai. Selamat ulang tahun!</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Galeri Foto -->
+        <section id="section-3" class="section">
+            <div class="photo-card-bg"></div>
+            <div class="photo-gallery">
+                <!-- Ganti src dengan path foto Anda -->
+                <img src="assets/images/foto/gallery-1.png" alt="Foto 1" class="photo" id="photo-1">
+                <img src="assets/images/foto/gallery-2.png" alt="Foto 2" class="photo" id="photo-2">
+                <img src="assets/images/foto/gallery-3.png" alt="Foto 3" class="photo" id="photo-3">
+                <img src="assets/images/foto/gallery-4.png" alt="Foto 4" class="photo" id="photo-4">
+                <img src="assets/images/foto/gallery-5.png" alt="Foto 5" class="photo" id="photo-5">
+                <img src="assets/images/foto/gallery-6.png" alt="Foto 6" class="photo" id="photo-6">
+                <img src="assets/images/foto/gallery-1.png" alt="Foto 7" class="photo" id="photo-7">
+                <img src="assets/images/foto/gallery-2.png" alt="Foto 8" class="photo" id="photo-8">
+            </div>
+        </section>
+
+        <!-- Lightbox/Fullscreen untuk foto -->
+        <div id="photo-lightbox" aria-hidden="true">
+        <button id="lightbox-close" aria-label="Tutup">×</button>
+        <img id="lightbox-img" alt="Foto" />
+        </div>
+
+        <!-- Section 4: Ucapan Penutup -->
+        <section id="section-4" class="section">
+        <div class="closing-wrapper">
+            <div class="closing-card">
+            <p id="closing-text">Terima kasih sudah jadi orang hebat di hidupku. Happy birthday! 🎉</p>
+            </div>
+        </div>
+        </section>
+        <!-- Tombol Next di pojok kanan bawah -->
+        <button id="nextButton">Next</button>
+    </main>
+
+    <!-- Pesan yang tampil jika dibuka di desktop -->
+    <div id="desktop-blocker">
+        <div class="message">
+            <h1>Oops!</h1>
+            <p>Website ini didesain khusus untuk tampilan mobile. Silakan buka di ponsel Anda untuk pengalaman terbaik.</p>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
