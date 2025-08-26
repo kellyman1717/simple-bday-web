@@ -1,24 +1,76 @@
 // ===============================
-// script.js (versi lengkap)
+// script.js (full)
 // ===============================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ---------- Element refs ----------
+  // --------- Helper: cari atau buat elemen by id ---------
+  function ensureEl(id, make) {
+    let el = document.getElementById(id);
+    if (!el) {
+      el = make();
+      (document.getElementById('mobile-content') || document.body).appendChild(el);
+    }
+    return el;
+  }
+
+  // ---------- Refs section ----------
   const section1 = document.getElementById('section-1');
   const section2 = document.getElementById('section-2');
   const section3 = document.getElementById('section-3');
-  const section4 = document.getElementById('section-4'); // ada setelah kamu tambahkan Section 4 di HTML
+  const section4 = document.getElementById('section-4');
 
-  const nextButton = document.getElementById('nextButton');
   const instructionText = document.getElementById('instruction');
+  const semuaLilin = document.querySelectorAll('.lilin');
+  const semuaApi   = document.querySelectorAll('.api');
+  const photos     = document.querySelectorAll('.photo');
 
-  const semuaLilin = document.querySelectorAll('.lilin'); // img lilin
-  const semuaApi = document.querySelectorAll('.api');     // elemen nyala api (div.api)
-  const photos = document.querySelectorAll('.photo');     // foto pada Section 3
-  const lightbox = document.getElementById('photo-lightbox');
+  // ---------- Next Button (buat jika belum ada) ----------
+  const nextButton = ensureEl('nextButton', () => {
+    const b = document.createElement('button');
+    b.id = 'nextButton';
+    b.textContent = 'Next';
+    return b;
+  });
+
+  // ---------- Confetti Canvas (buat jika belum ada) ----------
+  const confettiCanvas = ensureEl('confetti-canvas', () => {
+    const c = document.createElement('canvas');
+    c.id = 'confetti-canvas';
+    return c;
+  });
+
+  // ---------- Lightbox (buat jika belum ada) ----------
+  const lightbox = ensureEl('photo-lightbox', () => {
+    const d = document.createElement('div');
+    d.id = 'photo-lightbox';
+    d.setAttribute('aria-hidden', 'true');
+    return d;
+  });
+  // close button
+  let lightboxClose = document.getElementById('lightbox-close');
+  if (!lightboxClose) {
+    lightboxClose = document.createElement('button');
+    lightboxClose.id = 'lightbox-close';
+    lightboxClose.setAttribute('aria-label', 'Tutup');
+    lightboxClose.textContent = '×';
+    lightbox.appendChild(lightboxClose);
+  }
+  // stage & image
   let lightboxStage = document.getElementById('lightbox-stage');
-  const lightboxImg = document.getElementById('lightbox-img');
-  const lightboxClose = document.getElementById('lightbox-close');
+  if (!lightboxStage) {
+    lightboxStage = document.createElement('div');
+    lightboxStage.id = 'lightbox-stage';
+    lightbox.prepend(lightboxStage);
+  }
+  let lightboxImg = document.getElementById('lightbox-img');
+  if (!lightboxImg) {
+    lightboxImg = document.createElement('img');
+    lightboxImg.id = 'lightbox-img';
+    lightboxImg.alt = 'Foto';
+    lightboxStage.appendChild(lightboxImg);
+  } else if (!lightboxImg.parentElement || lightboxImg.parentElement.id !== 'lightbox-stage') {
+    lightboxStage.appendChild(lightboxImg);
+  }
 
   // ---------- State ----------
   let candlesLit = false;   // apakah lilin sudah dinyalakan
@@ -27,121 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================
   //  CONFETTI ENGINE (canvas overlay, jatuh dari atas layar)
   // =========================================================
-  const confettiCanvas = document.getElementById('confetti-canvas');
   const hasConfetti = !!confettiCanvas;
   let confettiCtx = null;
   let confettiParticles = [];
   let confettiActive = false;
   let lastT = 0;
-
-  if (!lightboxStage) {
-    lightboxStage = document.createElement('div');
-    lightboxStage.id = 'lightbox-stage';
-    // sisipkan stage di paling depan lalu pindahkan img ke dalamnya
-    lightbox.prepend(lightboxStage);
-    lightboxStage.appendChild(lightboxImg);
-  }
-
-  /** Helper: ambil rotasi deg dari CSS custom prop --rot pada .photo (default 0deg) */
-    function getPhotoRotationDeg(el){
-        const val = getComputedStyle(el).getPropertyValue('--rot').trim();
-        if (!val) return 0;
-        const m = val.match(/(-?\d+(\.\d+)?)deg/);
-        return m ? parseFloat(m[1]) : 0;
-    }
-
-    // Variabel untuk animasi balik
-    let lastInvert = null;
-    let lastSrc = '';
-
-    function openWithAnimation(imgEl){
-        // Set gambar
-        lastSrc = imgEl.src;
-        lightboxImg.src = imgEl.src;
-
-        // Tampilkan overlay supaya kita bisa ukur stage final size
-        lightbox.classList.add('visible', 'anim-start');
-
-        // Biarkan browser layout final stage (80vw/80vh)
-        requestAnimationFrame(() => {
-            const thumbRect = imgEl.getBoundingClientRect();
-            const stageRect = lightboxStage.getBoundingClientRect();
-
-            // Hitung delta posisi & skala (FLIP)
-            const scaleX = thumbRect.width / stageRect.width;
-            const scaleY = thumbRect.height / stageRect.height;
-            const translateX = (thumbRect.left + thumbRect.width/2) - (stageRect.left + stageRect.width/2);
-            const translateY = (thumbRect.top + thumbRect.height/2) - (stageRect.top + stageRect.height/2);
-
-            // Ambil rotasi awal dari foto (mis. --rot: 12deg pada CSS)
-            const rotDeg = getPhotoRotationDeg(imgEl);
-
-            // Set state awal (invert) → sama persis dengan posisi & ukuran thumbnail
-            lightboxStage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY}) rotate(${rotDeg}deg)`;
-
-            // Simpan untuk animasi balik
-            lastInvert = { translateX, translateY, scaleX, scaleY, rotDeg };
-
-            // Force reflow supaya transition jalan
-            lightboxStage.getBoundingClientRect();
-
-            // Play → menuju final (center, 80%, tanpa transform)
-            lightbox.classList.remove('anim-start');
-            lightboxStage.style.transform = 'none';
-        });
-    }
-
-    function closeWithAnimation(){
-        if (!lastInvert || !lightbox.classList.contains('visible')) {
-            lightbox.classList.remove('visible', 'anim-start');
-            return;
-        }
-
-        // Set ke posisi awal lagi (balik ke thumbnail)
-        const { translateX, translateY, scaleX, scaleY, rotDeg } = lastInvert;
-
-        // Mulai fade-out sambil transform balik
-        lightbox.classList.add('anim-start');
-        lightboxStage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY}) rotate(${rotDeg}deg)`;
-
-        // Setelah transisi selesai, sembunyikan overlay & reset
-        const onDone = () => {
-            lightbox.removeEventListener('transitionend', onDone);
-            lightbox.classList.remove('visible', 'anim-start');
-            lightboxStage.style.transform = 'none';
-            lightboxImg.src = '';
-            lastInvert = null;
-        };
-        // Kita dengar transition pada opacity overlay; fallback timeout juga bisa ditambah
-        lightbox.addEventListener('transitionend', onDone, { once: true });
-
-        // Trigger opacity transition dari overlay
-        // (opacity dikontrol kelas .anim-start pada CSS)
-        requestAnimationFrame(() => {
-            // nothing else needed; kelas sudah ditambahkan di atas
-        });
-    }
-
-        // Buka saat foto diklik (hanya jika sudah visible/selesai animasi masuk)
-        photos.forEach(img => {
-        img.addEventListener('click', () => {
-            if (!img.classList.contains('visible')) return;
-            openWithAnimation(img);
-        });
-    });
-
-        // Tutup lewat tombol X / klik backdrop / tombol Escape
-        lightboxClose.addEventListener('click', closeWithAnimation);
-
-        lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) closeWithAnimation();
-    });
-
-        document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && lightbox.classList.contains('visible')) {
-            closeWithAnimation();
-        }
-    });
 
   function resizeConfetti() {
     if (!hasConfetti) return;
@@ -158,21 +100,20 @@ document.addEventListener('DOMContentLoaded', () => {
   function spawnConfetti(n = 160) {
     const w = window.innerWidth;
     for (let i = 0; i < n; i++) {
-        confettiParticles.push({
+      confettiParticles.push({
         x: Math.random() * w,
-        y: -(Math.random() * 100 + 20),
-        vx: (Math.random() * 2 - 1) * (40 + Math.random() * 60),
-        vy: 80 + Math.random() * 160,
-        size: 3 + Math.random() * 3,   // <<<<< ukuran diperkecil: 3–6px
+        y: -(Math.random() * 100 + 20),                          // mulai di atas
+        vx: (Math.random() * 2 - 1) * (40 + Math.random() * 60), // gerak samping
+        vy: 80 + Math.random() * 160,                            // jatuh
+        size: 3 + Math.random() * 3,   // ukuran kecil: 3–6 px
         color: ['#f94144','#f3722c','#f9c74f','#90be6d','#43aa8b','#577590','#f8961e'][Math.floor(Math.random() * 7)],
         rot: Math.random() * Math.PI * 2,
         rotSpd: (Math.random() * 2 - 1) * 6,
         t: 0,
         wobble: Math.random() * Math.PI * 2
-        });
+      });
     }
-    }
-
+  }
 
   function stepConfetti(t) {
     if (!confettiActive || !hasConfetti) return;
@@ -193,12 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
       confettiCtx.translate(p.x, p.y);
       confettiCtx.rotate(p.rot);
       confettiCtx.fillStyle = p.color;
-      // partikel berbentuk persegi panjang kecil
       confettiCtx.fillRect(-p.size, -p.size * 0.6, p.size * 2, p.size * 1.2);
       confettiCtx.restore();
     });
 
-    // buang partikel yang sudah lewat bawah layar
+    // buang partikel di bawah layar
     confettiParticles = confettiParticles.filter(p => p.y < h + 40);
 
     if (confettiParticles.length > 0) {
@@ -220,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => clearInterval(interval), durationMs);
   }
 
-  // init canvas confetti kalau ada
+  // init confetti
   if (hasConfetti) {
     confettiCtx = confettiCanvas.getContext('2d');
     window.addEventListener('resize', resizeConfetti);
@@ -244,12 +184,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mulai confetti 6 detik
     startConfetti(6000);
   }
-
-  // pasang listener untuk semua lilin
   semuaLilin.forEach(lilin => lilin.addEventListener('click', nyalakanLilin));
 
   // =========================================================
-  //         Tombol Next: pindah section 1 -> 2 -> 3 -> 4
+  //      Tombol Next: pindah section 1 -> 2 -> 3 -> 4
   // =========================================================
   if (nextButton) {
     nextButton.addEventListener('click', () => {
@@ -270,42 +208,184 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (section3) section3.classList.add('active');
 
-        // tampilkan foto satu per satu (fade-in berurutan)
+        // tampilkan foto satu per satu
         photos.forEach((photo, index) => {
           setTimeout(() => {
             photo.classList.add('visible');
           }, (index + 1) * 300); // jeda 300ms antar foto
         });
 
-        // tetap tampilkan tombol untuk lanjut ke Section 4
+        // tombol tetap terlihat untuk lanjut ke Section 4
         nextButton.classList.add('visible');
-
         currentSection = 3;
 
       } else if (currentSection === 3) {
         // 3 -> 4
         if (section3) {
-          section3.classList.remove('active');
-          section3.classList.add('background');
+            section3.classList.remove('active');
+            section3.classList.add('background');
         }
-
-        // Sembunyikan Section 1 & 2 total agar tidak mengganggu
         if (section1) section1.classList.add('gone');
         if (section2) section2.classList.add('gone');
 
-        // Tampilkan Section 4 (card ucapan fade-in via CSS)
-        if (section4) section4.classList.add('active');
+        if (section4) {
+            section4.classList.add('active');
 
-        // Kalau tidak ada section selanjutnya, sembunyikan tombol Next
+            // === Slideshow background Section 4 ===
+            const slideshow = section4.querySelector('.bg-slideshow');
+            if (slideshow && slideshow.children.length === 0) {
+            const totalFoto = 6; // jumlah foto di folder
+            for (let i = 1; i <= totalFoto; i++) {
+                const img = document.createElement('img');
+                img.src = `assets/images/foto/gallery-${i}.png`; // sesuaikan format file
+                img.alt = `Foto ${i}`;
+                if (i === 1) img.classList.add('active');
+                slideshow.appendChild(img);
+            }
+
+            // Jalankan slideshow
+            let current = 0;
+            const imgs = slideshow.querySelectorAll('img');
+            setInterval(() => {
+                imgs[current].classList.remove('active');
+                current = (current + 1) % imgs.length;
+                imgs[current].classList.add('active');
+            }, 5000); // ganti setiap 1 detik
+            }
+        }
+
         nextButton.classList.remove('visible');
-
         currentSection = 4;
-      }
+        }
     });
   }
 
   // =========================================================
-  //             (Opsional) Navigasi sentuh / geser
-  //  Jika ingin menambah navigasi swipe, tambahkan di sini.
+  //           LIGHTBOX FOTO dengan animasi FLIP
+  //      (beda durasi open vs close via .opening)
   // =========================================================
+  function getPhotoRotationDeg(el){
+    const val = getComputedStyle(el).getPropertyValue('--rot').trim();
+    const m = val.match(/(-?\d+(\.\d+)?)deg/);
+    return m ? parseFloat(m[1]) : 0;
+  }
+
+  let lastInvert = null;
+
+  function waitImageReady(imgEl) {
+    if (imgEl.complete && imgEl.naturalWidth > 0) {
+      if (imgEl.decode) return imgEl.decode().catch(() => {});
+      return Promise.resolve();
+    }
+    return new Promise((res) => {
+      imgEl.onload = () => {
+        if (imgEl.decode) imgEl.decode().then(res).catch(res);
+        else res();
+      };
+      imgEl.onerror = res; // tetap lanjut walau gagal decode
+    });
+  }
+
+  async function openWithAnimation(imgEl){
+    // set src dulu
+    lightboxImg.src = imgEl.src;
+
+    // tampilkan overlay + state awal + tandai OPENING (durasi khusus)
+    lightbox.classList.add('visible', 'anim-start', 'opening');
+    lightbox.setAttribute('aria-hidden', 'false');
+
+    // tunggu gambar siap agar stage size final benar
+    await waitImageReady(lightboxImg);
+    // double rAF agar layout settle
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    const thumbRect = imgEl.getBoundingClientRect();
+    const stageRect = lightboxStage.getBoundingClientRect();
+
+    if (stageRect.width <= 1 || stageRect.height <= 1) {
+      // fallback: tampilkan tanpa transform jika gagal ukur
+      lightbox.classList.remove('anim-start', 'opening');
+      return;
+    }
+
+    const scaleX = thumbRect.width / stageRect.width;
+    const scaleY = thumbRect.height / stageRect.height;
+    const translateX = (thumbRect.left + thumbRect.width/2) - (stageRect.left + stageRect.width/2);
+    const translateY = (thumbRect.top  + thumbRect.height/2) - (stageRect.top  + stageRect.height/2);
+    const rotDeg = getPhotoRotationDeg(imgEl);
+
+    // set state awal (invert)
+    lightboxStage.style.transform =
+      `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY}) rotate(${rotDeg}deg)`;
+    // force reflow
+    lightboxStage.getBoundingClientRect();
+
+    // play -> menuju final (center, 80%, opacity 1)
+    lightbox.classList.remove('anim-start');
+    lightboxStage.style.transform = 'none';
+
+    // hapus tanda 'opening' setelah transisi selesai (biar close pakai durasi default)
+    lightboxStage.addEventListener('transitionend', function onEnd(e){
+      if (e.propertyName === 'transform' || e.propertyName === 'opacity') {
+        lightboxStage.removeEventListener('transitionend', onEnd);
+        lightbox.classList.remove('opening');
+      }
+    });
+  }
+
+  function closeWithAnimation(){
+    if (!lastInvert || !lightbox.classList.contains('visible')) {
+      lightbox.classList.remove('visible', 'anim-start', 'opening');
+      lightbox.setAttribute('aria-hidden', 'true');
+      lightboxStage.style.transform = 'none';
+      lightboxImg.src = '';
+      return;
+    }
+    const { translateX, translateY, scaleX, scaleY, rotDeg } = lastInvert;
+
+    // CLOSE → pakai durasi default (karena .opening sudah hilang)
+    lightbox.classList.add('anim-start');
+    lightboxStage.style.transform =
+      `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY}) rotate(${rotDeg}deg)`;
+
+    const onDone = () => {
+      lightbox.removeEventListener('transitionend', onDone);
+      lightbox.classList.remove('visible', 'anim-start', 'opening');
+      lightbox.setAttribute('aria-hidden', 'true');
+      lightboxStage.style.transform = 'none';
+      lightboxImg.src = '';
+      lastInvert = null;
+    };
+    lightbox.addEventListener('transitionend', onDone, { once: true });
+  }
+
+  // buka saat klik foto (hanya jika sudah muncul di section)
+  photos.forEach(img => {
+    img.addEventListener('click', () => {
+      if (!img.classList.contains('visible')) return;
+      // simpan invert untuk animasi balik
+      const rect = img.getBoundingClientRect();
+      lastInvert = { // nilai awal akan dihitung ulang saat closeWithAnimation dipanggil
+        translateX: 0, translateY: 0, scaleX: 1, scaleY: 1, rotDeg: getPhotoRotationDeg(img)
+      };
+      openWithAnimation(img);
+      // hitung ulang nilai invert yang tepat untuk close:
+      // (diset saat open selesai — sudah cukup untuk animasi close)
+      setTimeout(() => {
+        const thumbRect = rect;
+        const stageRect = lightboxStage.getBoundingClientRect();
+        if (stageRect.width > 1 && stageRect.height > 1) {
+          lastInvert.translateX = (thumbRect.left + thumbRect.width/2) - (stageRect.left + stageRect.width/2);
+          lastInvert.translateY = (thumbRect.top  + thumbRect.height/2) - (stageRect.top  + stageRect.height/2);
+          lastInvert.scaleX = thumbRect.width / stageRect.width;
+          lastInvert.scaleY = thumbRect.height / stageRect.height;
+        }
+      }, 300);
+    });
+  });
+
+  // tutup via tombol X / klik backdrop / Escape
+  lightboxClose.addEventListener('click', closeWithAnimation);
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeWithAnimation(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && lightbox.classList.contains('visible')) closeWithAnimation(); });
 });
