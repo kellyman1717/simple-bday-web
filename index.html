@@ -8,13 +8,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 </head>
 <body>
-    <!-- Konten utama yang hanya tampil di mobile -->
     <main id="mobile-content">
         <canvas id="confetti-canvas"></canvas>
-        <!-- Section 1: Kue Ulang Tahun -->
-        <section id="section-1" class="section active">
+        <section id="section-0" class="section active">
+            <div class="intro-container">
+                <p id="intro-message"></p>
+                <p id="intro-instruction">Tap dimana aja buat lanjut</p>
+            </div>
+        </section>
+        <section id="section-1" class="section">
             <div class="cake-container">
                 <img src="assets/images/piring.png" alt="Piring Kue" id="piring" class="cake-part">
                 <img src="assets/images/kue bawah.png" alt="Kue Bawah" id="kue-bawah" class="cake-part">
@@ -28,19 +33,14 @@
             </div>
             <p id="instruction">Tap lilin untuk menyalakan</p>
         </section>
-
-        <!-- Section 2: Kartu Ucapan -->
         <section id="section-2" class="section">
             <div class="wish-card">
-                <p>Semoga panjang umur, sehat selalu, dan semua impianmu tercapai. Selamat ulang tahun!</p>
+                <p>Ehhh kesayangan aku ulang tahun yaa hari ini... Semoga panjang umur yaa cantikku 😚, sehat selalu, rejekinya dilancarkan, dan semua impiannya tercapai, Aamiinnn. Happy Birthday 🎉🎊</p>
             </div>
         </section>
-
-        <!-- Section 3: Galeri Foto -->
         <section id="section-3" class="section">
             <div class="photo-card-bg"></div>
             <div class="photo-gallery">
-                <!-- Ganti src dengan path foto Anda -->
                 <img src="assets/images/foto/gallery-1.png" alt="Foto 1" class="photo" id="photo-1">
                 <img src="assets/images/foto/gallery-2.png" alt="Foto 2" class="photo" id="photo-2">
                 <img src="assets/images/foto/gallery-3.png" alt="Foto 3" class="photo" id="photo-3">
@@ -51,34 +51,28 @@
                 <img src="assets/images/foto/gallery-2.png" alt="Foto 8" class="photo" id="photo-8">
             </div>
         </section>
-
-        <!-- Lightbox/Fullscreen untuk foto -->
         <div id="photo-lightbox" aria-hidden="true">
-        <button id="lightbox-close" aria-label="Tutup">×</button>
-        <img id="lightbox-img" alt="Foto" />
+            <button id="lightbox-close" aria-label="Tutup">×</button>
+            <img id="lightbox-img" alt="Foto" />
         </div>
-
-        <!-- Section 4: Ucapan Penutup -->
         <section id="section-4" class="section">
             <div class="bg-slideshow"></div>
             <div class="closing-wrapper">
                 <div class="closing-card">
-                <p id="closing-text">Terima kasih sudah jadi orang hebat di hidupku. Happy birthday! 🎉</p>
+                    <p id="closing-text">Terima kasih udah jadi orang hebat di hidup aku. Happy birthday sayangkuuu! 🎉</p>
                 </div>
             </div>
         </section>
-        <!-- Tombol Next di pojok kanan bawah -->
         <button id="nextButton">Next</button>
+        <footer class="site-footer">Made with ❤️ by Ardian</footer>
+        <div id="happy-birthday-text">Happy Birthday!</div>
     </main>
-
-    <!-- Pesan yang tampil jika dibuka di desktop -->
     <div id="desktop-blocker">
         <div class="message">
             <h1>Oops!</h1>
             <p>Website ini didesain khusus untuk tampilan mobile. Silakan buka di ponsel Anda untuk pengalaman terbaik.</p>
         </div>
     </div>
-
     <script src="js/script.js"></script>
 </body>
 </html>
