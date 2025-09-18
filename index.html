@@ -7,10 +7,14 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 </head>
 <body>
+    <audio id="background-music" loop>
+        <source src="assets/music/song.mp3" type="audio/mpeg">
+        Browser kamu tidak mendukung elemen audio.
+    </audio>
     <main id="mobile-content">
         <canvas id="confetti-canvas"></canvas>
         <section id="section-0" class="section active">
@@ -19,6 +23,20 @@
                 <p id="intro-instruction">Tap dimana aja buat lanjut</p>
             </div>
         </section>
+
+        <section id="section-5" class="section">
+            <div id="gift-container">
+                <div id="gift-box">
+                    <img src="assets/images/kado atas.png" alt="Tutup Kado" id="kado-atas">
+                    <img src="assets/images/kado bawah.png" alt="Badan Kado" id="kado-bawah">
+                </div>
+                <p id="gift-instruction">Buka kadonya!</p>
+                <div id="final-message">
+                    <p>Ini cuman kado kecil kecilan buat kamu cantikku</p>
+                </div>
+            </div>
+        </section>
+
         <section id="section-1" class="section">
             <div class="cake-container">
                 <img src="assets/images/piring.png" alt="Piring Kue" id="piring" class="cake-part">
@@ -33,28 +51,37 @@
             </div>
             <p id="instruction">Tap lilin untuk menyalakan</p>
         </section>
+        
         <section id="section-2" class="section">
             <div class="wish-card">
                 <p>Ehhh kesayangan aku ulang tahun yaa hari ini... Semoga panjang umur yaa cantikku 😚, sehat selalu, rejekinya dilancarkan, dan semua impiannya tercapai, Aamiinnn. Happy Birthday 🎉🎊</p>
             </div>
         </section>
+        
         <section id="section-3" class="section">
             <div class="photo-card-bg"></div>
             <div class="photo-gallery">
-                <img src="assets/images/foto/gallery-1.png" alt="Foto 1" class="photo" id="photo-1">
-                <img src="assets/images/foto/gallery-2.png" alt="Foto 2" class="photo" id="photo-2">
-                <img src="assets/images/foto/gallery-3.png" alt="Foto 3" class="photo" id="photo-3">
-                <img src="assets/images/foto/gallery-4.png" alt="Foto 4" class="photo" id="photo-4">
-                <img src="assets/images/foto/gallery-5.png" alt="Foto 5" class="photo" id="photo-5">
-                <img src="assets/images/foto/gallery-6.png" alt="Foto 6" class="photo" id="photo-6">
-                <img src="assets/images/foto/gallery-1.png" alt="Foto 7" class="photo" id="photo-7">
-                <img src="assets/images/foto/gallery-2.png" alt="Foto 8" class="photo" id="photo-8">
+                <img src="assets/images/foto/gallery-1.jpg" alt="Foto 1" class="photo" id="photo-1">
+                <img src="assets/images/foto/gallery-2.jpg" alt="Foto 2" class="photo" id="photo-2">
+                <img src="assets/images/foto/gallery-3.jpg" alt="Foto 3" class="photo" id="photo-3">
+                <img src="assets/images/foto/gallery-4.jpg" alt="Foto 4" class="photo" id="photo-4">
+                <img src="assets/images/foto/gallery-5.jpg" alt="Foto 5" class="photo" id="photo-5">
+                <img src="assets/images/foto/gallery-6.jpg" alt="Foto 6" class="photo" id="photo-6">
+                <img src="assets/images/foto/gallery-7.jpg" alt="Foto 7" class="photo" id="photo-7">
+                <img src="assets/images/foto/gallery-8.jpg" alt="Foto 8" class="photo" id="photo-8">
             </div>
         </section>
+
         <div id="photo-lightbox" aria-hidden="true">
             <button id="lightbox-close" aria-label="Tutup">×</button>
-            <img id="lightbox-img" alt="Foto" />
+            <div id="lightbox-stage">
+                <figure class="polaroid">
+                    <img id="lightbox-img" alt="Foto">
+                    <figcaption id="lightbox-story"></figcaption>
+                </figure>
+            </div>
         </div>
+        
         <section id="section-4" class="section">
             <div class="bg-slideshow"></div>
             <div class="closing-wrapper">
@@ -63,6 +90,7 @@
                 </div>
             </div>
         </section>
+
         <button id="nextButton">Next</button>
         <footer class="site-footer">Made with ❤️ by Ardian</footer>
         <div id="happy-birthday-text">Happy Birthday!</div>

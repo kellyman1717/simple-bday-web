@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const section2 = document.getElementById('section-2');
   const section3 = document.getElementById('section-3');
   const section4 = document.getElementById('section-4');
+  const section5 = document.getElementById('section-5');
 
   const instructionText = document.getElementById('instruction');
   const introMessage = document.getElementById('intro-message');
@@ -20,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const semuaApi = document.querySelectorAll('.api');
   const photos = document.querySelectorAll('.photo');
   const happyBirthdayText = document.getElementById('happy-birthday-text');
-
+  const backgroundMusic = document.getElementById('background-music');
+  
   let blurOverlay = null;
 
   const nextButton = ensureEl('nextButton', () => {
@@ -60,23 +62,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   let lightboxImg = document.getElementById('lightbox-img');
+  let lightboxStory = document.getElementById('lightbox-story');
   if (!lightboxImg) {
+    const polaroid = document.createElement('figure');
+    polaroid.className = 'polaroid';
     lightboxImg = document.createElement('img');
     lightboxImg.id = 'lightbox-img';
     lightboxImg.alt = 'Foto';
-    lightboxStage.appendChild(lightboxImg);
+    lightboxStory = document.createElement('figcaption');
+    lightboxStory.id = 'lightbox-story';
+    polaroid.appendChild(lightboxImg);
+    polaroid.appendChild(lightboxStory);
+    lightboxStage.appendChild(polaroid);
   } else if (!lightboxImg.parentElement || lightboxImg.parentElement.id !== 'lightbox-stage') {
-    lightboxStage.appendChild(lightboxImg);
+    const polaroid = document.createElement('figure');
+    polaroid.className = 'polaroid';
+    polaroid.appendChild(lightboxImg);
+    polaroid.appendChild(lightboxStory);
+    lightboxStage.appendChild(polaroid);
   }
 
   let candlesLit = false;
-  let currentSection = 1;
+  let currentSection = 0;
+  let musicPlaying = false;
+  
+  // -- PERUBAHAN DI SINI --
+  let musicLoopCount = 0; // Variabel untuk menghitung putaran lagu
 
   const introMessages = [
     "Gift Sederhana Untuk My Pacar.",
     "Penasaran??",
-    "Penasaran Banget??",
-    "Okay Here We Go",
+    "Okee Okeee",
     "3",
     "2",
     "1"
@@ -85,6 +101,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (introMessage) {
     introMessage.textContent = introMessages[0];
+  }
+
+  function playMusic() {
+      if (backgroundMusic && !musicPlaying) {
+          // Hapus atribut loop bawaan agar bisa kita kontrol manual
+          backgroundMusic.loop = false; 
+          backgroundMusic.play().then(() => {
+              musicPlaying = true;
+          }).catch(error => {
+              console.log("Autoplay was prevented:", error);
+          });
+      }
+  }
+  
+  // -- FUNGSI BARU UNTUK MENGONTROL PENGULANGAN LAGU --
+  if (backgroundMusic) {
+      backgroundMusic.addEventListener('ended', () => {
+          musicLoopCount++;
+          if (musicLoopCount < 3) { // Ulangi jika belum 3 kali
+              backgroundMusic.currentTime = 0; // Kembali ke awal lagu
+              backgroundMusic.play();
+          }
+      });
   }
 
   function handleIntroClick() {
@@ -100,15 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
         section0.classList.remove('active');
         section0.classList.add('background');
       }
-      if (section1) {
-        section1.classList.add('active');
-        if (instructionText) {
-          setTimeout(() => {
-            instructionText.style.opacity = '1';
-          }, 4800);
-        }
+      if (section5) {
+        section5.classList.add('active');
       }
-      currentSection = 1;
+      currentSection = 5;
       if (section0) {
         section0.removeEventListener('click', handleIntroClick);
       }
@@ -276,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const slideshow = section4.querySelector('.bg-slideshow');
           if (slideshow && slideshow.children.length === 0) {
             const totalFoto = 6;
-            const names = Array.from({ length: totalFoto }, (_, i) => `${i + 1}.png`);
+            const names = Array.from({ length: totalFoto }, (_, i) => `${i + 1}.jpg`);
             for (let i = names.length - 1; i > 0; i--) {
               const j = Math.floor(Math.random() * (i + 1));
               [names[i], names[j]] = [names[j], names[i]];
@@ -297,8 +331,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 2000);
           }
         }
-        nextButton.classList.remove('visible');
+        nextButton.textContent = "Selesai";
         currentSection = 4;
+      } else if (currentSection === 4) {
+          window.location.reload();
       }
     });
   }
@@ -397,6 +433,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }, 300);
     });
+  });
+  
+  const giftBox = document.getElementById('gift-box');
+  const giftContainer = document.getElementById('gift-container');
+  const finalMessage = document.getElementById('final-message');
+  const giftInstruction = document.getElementById('gift-instruction');
+
+  if (giftBox) {
+      giftBox.addEventListener('click', () => {
+          playMusic(); 
+          
+          if (!giftBox.classList.contains('open')) {
+              giftBox.classList.add('open');
+              if (giftInstruction) {
+                  giftInstruction.style.opacity = '0';
+              }
+              if (finalMessage) {
+                  setTimeout(() => {
+                      finalMessage.classList.add('visible');
+                  }, 500);
+              }
+
+              setTimeout(() => {
+                  if (giftContainer) {
+                      giftContainer.classList.add('zoom-out');
+                  }
+                  
+                  setTimeout(() => {
+                      if (section5) {
+                          section5.classList.remove('active');
+                          section5.classList.add('background');
+                      }
+                      if (section1) {
+                          section1.classList.add('active');
+                          if (instructionText) {
+                              setTimeout(() => {
+                                  instructionText.style.opacity = '1';
+                              }, 4800);
+                          }
+                      }
+                      currentSection = 1;
+                  }, 1200);
+
+              }, 2500);
+          }
+      });
+  }
+  
+  window.addEventListener('scroll', () => {
+      const scrolled = window.scrollY;
+      const parallaxBg = document.querySelector('#section-4 .bg-slideshow');
+      if (parallaxBg) {
+          parallaxBg.style.transform = `scale(1.15) translateY(${scrolled * 0.3}px)`;
+      }
   });
 
   lightboxClose.addEventListener('click', closeWithAnimation);
